@@ -3,12 +3,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+import { JwtService } from '@nestjs/jwt';
 import { User } from './user.schema';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private jwtService: JwtService,
+  ) {}
 
   async register(data: { username: string; password: string }) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -28,9 +31,8 @@ export class AuthService {
       return { message: 'Invalid credentials' };
     }
 
-    const token = jwt.sign({ username: user.username, sub: user._id }, process.env.JWT_SECRET || 'secret', {
-      expiresIn: '1h',
-    });
+    const payload = { username: user.username, sub: user._id };
+    const token = this.jwtService.sign(payload);
 
     return { message: 'Login successful', token };
   }
