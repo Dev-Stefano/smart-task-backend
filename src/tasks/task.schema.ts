@@ -1,3 +1,4 @@
+// MongoDB schema for tasks
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -8,6 +9,9 @@ export class Task extends Document {
 
   @Prop()
   description?: string;
+
+  @Prop({ default: false })
+  completed: boolean;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);
