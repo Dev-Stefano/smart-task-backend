@@ -1,8 +1,10 @@
-// Controller defines API endpoints for tasks
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+// Controller defines API endpoints for tasks, now protected by JWT
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nestjs/common';
 import { TasksService } from './tasks.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('tasks')
+@UseGuards(JwtAuthGuard) // all routes require valid JWT
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
