@@ -1,48 +1,31 @@
+// Service contains the business logic for tasks
 import { Injectable } from '@nestjs/common';
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-}
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Task } from './task.schema';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [];
+  constructor(@InjectModel(Task.name) private taskModel: Model<Task>) {}
 
-  findAll(): Task[] {
-    return this.tasks;
+  async findAll(): Promise<Task[]> {
+    return this.taskModel.find().exec();
   }
 
-  findOne(id: string): Task | undefined {
-    return this.tasks.find(task => task.id === id);
+  async findOne(id: string): Promise<Task | null> {
+    return this.taskModel.findById(id).exec();
   }
 
-  create(data: { title: string; description?: string }): Task {
-    const newTask: Task = {
-      id: (this.tasks.length + 1).toString(),
-      title: data.title,
-      description: data.description,
-    };
-    this.tasks.push(newTask);
-    return newTask;
+  async create(data: { title: string; description?: string }): Promise<Task> {
+    const newTask = new this.taskModel(data);
+    return newTask.save();
   }
 
-  update(id: string, data: { title?: string; description?: string }): Task | undefined {
-    const task = this.findOne(id);
-    if (task) {
-      task.title = data.title ?? task.title;
-      task.description = data.description ?? task.description;
-    }
-    return task;
+  async update(id: string, data: Partial<Task>): Promise<Task | null> {
+    return this.taskModel.findByIdAndUpdate(id, data, { new: true }).exec();
   }
 
-  remove(id: string): Task | undefined {
-    const index = this.tasks.findIndex(task => task.id === id);
-    if (index !== -1) {
-      const [removed] = this.tasks.splice(index, 1);
-      return removed;
-    }
-    return undefined;
+  async remove(id: string): Promise<Task | null> {
+    return this.taskModel.findByIdAndDelete(id).exec();
   }
 }
