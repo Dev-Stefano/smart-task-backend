@@ -1,3 +1,4 @@
+// Controller defines API endpoints for tasks
 import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 
@@ -21,7 +22,7 @@ export class TasksController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: { title?: string; description?: string }) {
+  update(@Param('id') id: string, @Body() body: { title?: string; description?: string; completed?: boolean }) {
     return this.tasksService.update(id, body);
   }
 
